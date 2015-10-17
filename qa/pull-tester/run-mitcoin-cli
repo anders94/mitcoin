@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# This is a thin wrapper around mitcoin-cli that strips the Windows-style EOLs
+# from the output if present. It is necessary when using mitcoin-cli.exe on
+# Linux since shells will interpret the line-endings as part of the result.
+
+CURDIR=$(cd $(dirname "$0"); pwd)
+# Get BUILDDIR and REAL_mitcoinD
+
+# Grab the value of $REAL_mitcoinCLI which may be mitcoin-cli.exe.
+. "${CURDIR}/tests-config.sh"
+
+"${REAL_mitcoinCLI}" "$@" | sed 's/\r//'

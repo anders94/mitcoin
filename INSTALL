@@ -1,0 +1,5 @@
+Building mitcoin
+
+See doc/build-*.md for instructions on building mitcoind,
+the intended-for-services, no-graphical-interface, reference
+implementation of mitcoin.

@@ -1,0 +1,3 @@
+debian/manpages/mitcoind.1
+debian/manpages/mitcoin.conf.5
+debian/manpages/mitcoin-cli.1

@@ -1,0 +1,88 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/mitcoin/.mitcoin" ]; then
+	mitcoinD_DEFAULT_DATADIR="/var/lib/mitcoin/.mitcoin"
+else
+	mitcoinD_DEFAULT_DATADIR="/var/lib/mitcoind"
+fi
+
+mitcoinD_CONFIGFILE=${mitcoinD_CONFIGFILE:-/etc/mitcoin/mitcoin.conf}
+mitcoinD_PIDDIR=${mitcoinD_PIDDIR:-/var/run/mitcoind}
+mitcoinD_PIDFILE=${mitcoinD_PIDFILE:-${mitcoinD_PIDDIR}/mitcoind.pid}
+mitcoinD_DATADIR=${mitcoinD_DATADIR:-${mitcoinD_DEFAULT_DATADIR}}
+mitcoinD_USER=${mitcoinD_USER:-${mitcoin_USER:-mitcoin}}
+mitcoinD_GROUP=${mitcoinD_GROUP:-mitcoin}
+mitcoinD_BIN=${mitcoinD_BIN:-/usr/bin/mitcoind}
+mitcoinD_NICE=${mitcoinD_NICE:-${NICELEVEL:-0}}
+mitcoinD_OPTS="${mitcoinD_OPTS:-${mitcoin_OPTS}}"
+
+name="mitcoin Core Daemon"
+description="mitcoin cryptocurrency P2P network daemon"
+
+command="/usr/bin/mitcoind"
+command_args="-pid=\"${mitcoinD_PIDFILE}\" \
+		-conf=\"${mitcoinD_CONFIGFILE}\" \
+		-datadir=\"${mitcoinD_DATADIR}\" \
+		-daemon \
+		${mitcoinD_OPTS}"
+
+required_files="${mitcoinD_CONFIGFILE}"
+start_stop_daemon_args="-u ${mitcoinD_USER} \
+			-N ${mitcoinD_NICE} -w 2000"
+pidfile="${mitcoinD_PIDFILE}"
+retry=60
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${mitcoinD_USER}:${mitcoinD_GROUP}" \
+	"${mitcoinD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${mitcoinD_USER}:${mitcoinD_GROUP}" \
+	"${mitcoinD_PIDDIR}"
+
+	checkpath -f \
+	-o ${mitcoinD_USER}:${mitcoinD_GROUP} \
+	-m 0660 \
+	${mitcoinD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${mitcoinD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run mitcoind."
+		eerror "The setting must appear in ${mitcoinD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"mitcoin Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

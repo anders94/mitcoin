@@ -1,0 +1,22 @@
+[Unit]
+Description=mitcoin's distributed currency daemon
+After=network.target
+
+[Service]
+User=mitcoin
+Group=mitcoin
+
+Type=forking
+PIDFile=/var/lib/mitcoind/mitcoind.pid
+ExecStart=/usr/bin/mitcoind -daemon -pid=/var/lib/mitcoind/mitcoind.pid \
+-conf=/etc/mitcoin/mitcoin.conf -datadir=/var/lib/mitcoind -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

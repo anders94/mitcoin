@@ -1,0 +1,27 @@
+# /etc/conf.d/mitcoind: config file for /etc/init.d/mitcoind
+
+# Config file location
+#mitcoinD_CONFIGFILE="/etc/mitcoin/mitcoin.conf"
+
+# What directory to write pidfile to?  (created and owned by $mitcoinD_USER)
+#mitcoinD_PIDDIR="/var/run/mitcoind"
+
+# What filename to give the pidfile
+#mitcoinD_PIDFILE="${mitcoinD_PIDDIR}/mitcoind.pid"
+
+# Where to write mitcoind data (be mindful that the blockchain is large)
+#mitcoinD_DATADIR="/var/lib/mitcoind"
+
+# User and group to own mitcoind process
+#mitcoinD_USER="mitcoin"
+#mitcoinD_GROUP="mitcoin"
+
+# Path to mitcoind executable
+#mitcoinD_BIN="/usr/bin/mitcoind"
+
+# Nice value to run mitcoind under
+#mitcoinD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+mitcoinD_OPTS="-disablewallet"
+
